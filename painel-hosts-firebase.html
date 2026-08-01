@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LS Desenvolvedores // Painel de Hosts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080b12; --panel:#0f1420; --panel-border:#1c2536;
+    --cyan:#2de2e6; --magenta:#ff2fa0; --text:#dbe4f0; --muted:#5c6b85;
+    --online:#39ff88; --offline:#ff4d5e;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(45,226,230,0.08), transparent 40%),
+      radial-gradient(circle at 85% 100%, rgba(255,47,160,0.08), transparent 40%),
+      var(--bg);
+    color:var(--text); font-family:'Share Tech Mono', monospace; min-height:100vh;
+  }
+  header{
+    padding:28px 20px 18px; border-bottom:1px solid var(--panel-border);
+    position:relative; overflow:hidden;
+  }
+  header::after{
+    content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+    background:linear-gradient(90deg, var(--cyan), transparent 60%, var(--magenta)); opacity:.7;
+  }
+  .eyebrow{font-size:11px; letter-spacing:.25em; color:var(--cyan); text-transform:uppercase; margin-bottom:6px;}
+  h1{font-family:'Rajdhani', sans-serif; font-weight:700; font-size:28px; letter-spacing:.03em; margin:0; color:#fff;}
+  h1 span{color:var(--magenta);}
+  .sub{color:var(--muted); font-size:13px; margin-top:6px;}
+
+  main{padding:18px 16px 90px; max-width:640px; margin:0 auto;}
+
+  #loginScreen{max-width:400px; margin:60px auto; padding:0 20px;}
+  #loginScreen .box{
+    background:var(--panel); border:1px solid var(--panel-border);
+    border-top:2px solid var(--cyan); border-radius:6px; padding:24px 20px;
+  }
+  #loginScreen h2{font-family:'Rajdhani', sans-serif; font-size:20px; color:#fff; margin:0 0 4px;}
+  #loginScreen .sub{margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block; font-size:11px; color:var(--cyan); letter-spacing:.08em;
+    text-transform:uppercase; margin-bottom:5px;
+  }
+  .field input, .field select{
+    width:100%; background:#0a0e17; border:1px solid var(--panel-border);
+    color:var(--text); font-family:'Share Tech Mono', monospace; font-size:14px;
+    padding:10px; border-radius:2px;
+  }
+  .field input:focus, .field select:focus{outline:none; border-color:var(--cyan);}
+  .btn-full{
+    width:100%; padding:12px; border-radius:2px; font-family:'Rajdhani', sans-serif;
+    font-weight:600; letter-spacing:.03em; cursor:pointer; border:none;
+    background:var(--cyan); color:#03131a; margin-top:6px;
+  }
+  .link-btn{
+    background:none; border:none; color:var(--muted); font-size:12px;
+    text-decoration:underline; cursor:pointer; margin-top:12px; display:block;
+    text-align:center; width:100%;
+  }
+  .login-error{color:var(--offline); font-size:12px; margin-top:10px; display:none;}
+
+  #panelScreen{display:none;}
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px; max-width:640px; margin:0 auto; font-size:12px; color:var(--muted);
+  }
+  .topbar button{
+    background:none; border:1px solid var(--panel-border); color:var(--muted);
+    font-family:'Share Tech Mono', monospace; font-size:12px;
+    padding:5px 10px; border-radius:2px; cursor:pointer;
+  }
+
+  .toolbar{display:flex; gap:10px; margin-bottom:16px;}
+  .toolbar button{
+    flex:1; background:var(--panel); border:1px solid var(--panel-border); color:var(--cyan);
+    font-family:'Rajdhani', sans-serif; font-weight:600; letter-spacing:.04em;
+    padding:11px 8px; border-radius:2px; cursor:pointer;
+  }
+  .toolbar button.primary{
+    background:linear-gradient(90deg, rgba(45,226,230,.15), rgba(255,47,160,.15)); border-color:var(--cyan);
+  }
+
+  .host-card{
+    background:var(--panel); border:1px solid var(--panel-border); border-radius:2px;
+    padding:16px; margin-bottom:12px; position:relative;
+  }
+  .host-card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:3px;}
+  .host-card.online::before{background:var(--online);}
+  .host-card.offline::before{background:var(--offline);}
+  .host-top{display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;}
+  .host-name{font-family:'Rajdhani', sans-serif; font-weight:600; font-size:18px; color:#fff; letter-spacing:.02em;}
+  .status-tag{
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase; padding:3px 8px;
+    border-radius:2px; display:flex; align-items:center; gap:6px;
+  }
+  .status-tag.online{color:var(--online); border:1px solid rgba(57,255,136,.4);}
+  .status-tag.offline{color:var(--offline); border:1px solid rgba(255,77,94,.4);}
+  .dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+  .status-tag.online .dot{animation:blink 1.4s infinite;}
+  @keyframes blink{0%,100%{opacity:1;} 50%{opacity:.25;}}
+  .host-meta{font-size:13px; color:var(--muted); display:flex; flex-wrap:wrap; gap:14px;}
+  .host-meta b{color:var(--text); font-weight:400;}
+  .host-actions{margin-top:12px; display:flex; gap:8px;}
+  .host-actions button{
+    background:none; border:1px solid var(--panel-border); color:var(--muted);
+    font-family:'Share Tech Mono', monospace; font-size:12px; padding:6px 10px;
+    border-radius:2px; cursor:pointer;
+  }
+  .host-actions button:hover{color:var(--cyan); border-color:var(--cyan);}
+  .empty{text-align:center; color:var(--muted); padding:60px 20px; font-size:13px;}
+
+  .modal-bg{
+    display:none; position:fixed; inset:0; background:rgba(3,5,10,.75);
+    align-items:flex-end; justify-content:center; z-index:10;
+  }
+  .modal-bg.open{display:flex;}
+  .modal{
+    background:var(--panel); border:1px solid var(--panel-border); border-top:2px solid var(--cyan);
+    width:100%; max-width:640px; padding:20px 18px 24px; border-radius:8px 8px 0 0;
+  }
+  .modal h2{font-family:'Rajdhani', sans-serif; font-size:18px; color:#fff; margin:0 0 14px;}
+  .modal-actions{display:flex; gap:10px; margin-top:16px;}
+  .modal-actions button{
+    flex:1; padding:12px; border-radius:2px; font-family:'Rajdhani', sans-serif;
+    font-weight:600; letter-spacing:.03em; cursor:pointer; border:none;
+  }
+  .btn-cancel{background:none; border:1px solid var(--panel-border) !important; color:var(--muted);}
+  .btn-save{background:var(--cyan); color:#03131a;}
+
+  .conn-status{position:fixed; top:10px; right:10px; font-size:10px; color:var(--muted); letter-spacing:.08em;}
+</style>
+</head>
+<body>
+
+<div class="conn-status" id="connStatus">conectando...</div>
+
+<header>
+  <div class="eyebrow">LS Desenvolvedores</div>
+  <h1>PAINEL DE <span>HOSTS</span></h1>
+  <div class="sub">Servidores da comunidade — status e conexão</div>
+</header>
+
+<!-- TELA DE LOGIN -->
+<div id="loginScreen">
+  <div class="box">
+    <h2>Acessar painel</h2>
+    <div class="sub">Login do projeto Firebase deste painel</div>
+    <div class="field">
+      <label>E-mail</label>
+      <input id="loginEmail" type="email" placeholder="seu@email.com">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input id="loginSenha" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn-full" id="btnLogin">Entrar</button>
+    <button class="link-btn" id="btnShowCadastro">Ainda não tenho conta — cadastrar</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- PAINEL (só aparece logado) -->
+<div id="panelScreen">
+  <div class="topbar">
+    <span id="userLabel"></span>
+    <button id="btnLogout">Sair</button>
+  </div>
+  <main>
+    <div class="toolbar">
+      <button id="btnRefresh">↻ Atualizar</button>
+      <button class="primary" id="btnNew">+ Novo host</button>
+    </div>
+    <div id="list"></div>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitle">Novo host</h2>
+    <div class="field"><label>Nome do servidor</label><input id="fNome" placeholder="Ex: LS Roleplay #1"></div>
+    <div class="field"><label>IP</label><input id="fIp" placeholder="Ex: 177.10.20.5"></div>
+    <div class="field"><label>Porta</label><input id="fPorta" type="number" placeholder="Ex: 7777"></div>
+    <div class="field"><label>Jogadores máx.</label><input id="fMax" type="number" placeholder="Ex: 100"></div>
+    <div class="field">
+      <label>Status</label>
+      <select id="fStatus"><option value="online">Online</option><option value="offline">Offline</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancel">Cancelar</button>
+      <button class="btn-save" id="btnSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // ======================================================
+  // 1. CONFIGURAÇÃO — cole aqui o config do SEU projeto novo no Firebase
+  //    (Firebase Console > ⚙️ Configurações do projeto > seus apps > SDK config)
+  // ======================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+    createUserWithEmailAndPassword, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import {
+    getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc,
+    doc, getDoc, query, orderBy, serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBYy8cADR9BKfftzSWmQMp6POcjEbEJzOs",
+    authDomain: "painel-servidor-22529.firebaseapp.com",
+    projectId: "painel-servidor-22529",
+    storageBucket: "painel-servidor-22529.firebasestorage.app",
+    messagingSenderId: "700722030635",
+    appId: "1:700722030635:web:059df41bb07e758c90226e"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const hostsCol = collection(db, "hosts");
+
+  const loginScreen = document.getElementById('loginScreen');
+  const panelScreen = document.getElementById('panelScreen');
+  const connStatus = document.getElementById('connStatus');
+  const modalBg = document.getElementById('modalBg');
+  const listEl = document.getElementById('list');
+  let editingId = null;
+  let modoCadastro = false;
+  let isAdmin = false;
+
+  // ======================================================
+  // 2. AUTENTICAÇÃO (Firebase Auth deste projeto novo)
+  // ======================================================
+  onAuthStateChanged(auth, (user) => {
+    if(user) showPanel(user);
+    else showLogin();
+  });
+
+  function showLogin(){
+    loginScreen.style.display = 'block';
+    panelScreen.style.display = 'none';
+  }
+
+  async function showPanel(user){
+    loginScreen.style.display = 'none';
+    panelScreen.style.display = 'block';
+
+    // Verifica se esse usuário está na coleção "admins" (documento com ID = uid)
+    const adminSnap = await getDoc(doc(db, "admins", user.uid));
+    isAdmin = adminSnap.exists();
+
+    document.getElementById('userLabel').textContent = user.email + (isAdmin ? ' · admin' : '');
+    loadHosts();
+  }
+
+  document.getElementById('btnShowCadastro').onclick = () => {
+    modoCadastro = !modoCadastro;
+    document.getElementById('btnLogin').textContent = modoCadastro ? 'Cadastrar' : 'Entrar';
+    document.getElementById('btnShowCadastro').textContent = modoCadastro
+      ? 'Já tenho conta — entrar'
+      : 'Ainda não tenho conta — cadastrar';
+  };
+
+  document.getElementById('btnLogin').onclick = async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const senha = document.getElementById('loginSenha').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+
+    try{
+      if(modoCadastro){
+        await createUserWithEmailAndPassword(auth, email, senha);
+      } else {
+        await signInWithEmailAndPassword(auth, email, senha);
+      }
+    } catch(err){
+      errEl.textContent = 'Falha: ' + err.message;
+      errEl.style.display = 'block';
+    }
+  };
+
+  document.getElementById('btnLogout').onclick = async () => {
+    await signOut(auth);
+  };
+
+  // ======================================================
+  // 3. HOSTS — listar, criar, editar, excluir (Firestore)
+  // ======================================================
+  async function loadHosts(){
+    connStatus.textContent = 'sincronizando...';
+    try{
+      const q = query(hostsCol, orderBy('status', 'desc'));
+      const snap = await getDocs(q);
+      const hosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      connStatus.textContent = 'conectado';
+      renderList(hosts);
+    } catch(err){
+      connStatus.textContent = 'erro de conexão';
+      listEl.innerHTML = `<div class="empty">Não foi possível carregar os hosts.<br>${err.message}</div>`;
+    }
+  }
+
+  function renderList(hosts){
+    if(!hosts || hosts.length === 0){
+      listEl.innerHTML = `<div class="empty">Nenhum host cadastrado ainda.<br>Toque em "+ Novo host" pra adicionar o primeiro.</div>`;
+      return;
+    }
+    listEl.innerHTML = hosts.map(h => `
+      <div class="host-card ${h.status}">
+        <div class="host-top">
+          <div class="host-name">${escapeHtml(h.nome)}</div>
+          <div class="status-tag ${h.status}"><span class="dot"></span>${h.status}</div>
+        </div>
+        <div class="host-meta">
+          <span><b>${escapeHtml(h.ip)}:${h.porta}</b></span>
+          <span>Jogadores: <b>${h.jogadores_atual ?? 0}/${h.jogadores_max ?? '?'}</b></span>
+        </div>
+        <div class="host-actions">
+          ${isAdmin ? `
+          <button data-action="edit" data-id="${h.id}">Editar</button>
+          <button data-action="toggle" data-id="${h.id}" data-status="${h.status}">Marcar ${h.status === 'online' ? 'offline' : 'online'}</button>
+          <button data-action="delete" data-id="${h.id}">Excluir</button>
+          ` : `<span style="font-size:11px; color:var(--muted);">Apenas administradores podem editar</span>`}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  listEl.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if(!btn) return;
+    const { action, id, status } = btn.dataset;
+    if(action === 'edit') await editHost(id);
+    if(action === 'toggle') await toggleStatus(id, status);
+    if(action === 'delete') await deleteHost(id);
+  });
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  }
+
+  function openModal(host = null, id = null){
+    editingId = id;
+    document.getElementById('modalTitle').textContent = host ? 'Editar host' : 'Novo host';
+    document.getElementById('fNome').value = host?.nome ?? '';
+    document.getElementById('fIp').value = host?.ip ?? '';
+    document.getElementById('fPorta').value = host?.porta ?? '';
+    document.getElementById('fMax').value = host?.jogadores_max ?? '';
+    document.getElementById('fStatus').value = host?.status ?? 'offline';
+    modalBg.classList.add('open');
+  }
+  function closeModal(){ modalBg.classList.remove('open'); }
+
+  document.getElementById('btnNew').onclick = () => openModal();
+  document.getElementById('btnCancel').onclick = closeModal;
+  document.getElementById('btnRefresh').onclick = loadHosts;
+
+  async function editHost(id){
+    const snap = await getDoc(doc(db, "hosts", id));
+    if(snap.exists()) openModal(snap.data(), id);
+  }
+
+  document.getElementById('btnSave').onclick = async () => {
+    const payload = {
+      nome: document.getElementById('fNome').value.trim(),
+      ip: document.getElementById('fIp').value.trim(),
+      porta: parseInt(document.getElementById('fPorta').value) || null,
+      jogadores_max: parseInt(document.getElementById('fMax').value) || null,
+      status: document.getElementById('fStatus').value
+    };
+    if(!payload.nome || !payload.ip){ alert('Preencha ao menos nome e IP.'); return; }
+
+    try{
+      if(editingId){
+        await updateDoc(doc(db, "hosts", editingId), payload);
+      } else {
+        payload.criado_em = serverTimestamp();
+        payload.jogadores_atual = 0;
+        await addDoc(hostsCol, payload);
+      }
+      closeModal();
+      loadHosts();
+    } catch(err){
+      alert('Erro ao salvar: ' + err.message);
+    }
+  };
+
+  async function toggleStatus(id, currentStatus){
+    const novo = currentStatus === 'online' ? 'offline' : 'online';
+    try{
+      await updateDoc(doc(db, "hosts", id), { status: novo });
+      loadHosts();
+    } catch(err){ alert('Erro: ' + err.message); }
+  }
+
+  async function deleteHost(id){
+    if(!confirm('Excluir este host?')) return;
+    try{
+      await deleteDoc(doc(db, "hosts", id));
+      loadHosts();
+    } catch(err){ alert('Erro: ' + err.message); }
+  }
+</script>
+</body>
+</html>
