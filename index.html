@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LS Desenvolvedores // Painel de Hosts</title>
+<title>Project RP Mobile // Painel de Administração</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -20,6 +20,21 @@
       radial-gradient(circle at 85% 100%, rgba(255,47,160,0.08), transparent 40%),
       var(--bg);
     color:var(--text); font-family:'Share Tech Mono', monospace; min-height:100vh;
+    position:relative;
+  }
+  .bg-logo{
+    position:fixed; inset:0; z-index:-1;
+    display:flex; align-items:center; justify-content:center;
+    pointer-events:none; overflow:hidden;
+  }
+  .bg-logo span{
+    font-family:'Rajdhani', sans-serif; font-weight:700;
+    font-size:min(42vw, 420px); letter-spacing:.03em;
+    line-height:1; user-select:none;
+    background:linear-gradient(160deg, rgba(45,226,230,.14), rgba(255,47,160,.10));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    -webkit-text-stroke:1px rgba(45,226,230,.18);
+    filter:drop-shadow(0 0 40px rgba(45,226,230,.08));
   }
   header{
     padding:28px 20px 18px; border-bottom:1px solid var(--panel-border);
@@ -76,6 +91,13 @@
     font-family:'Share Tech Mono', monospace; font-size:12px;
     padding:5px 10px; border-radius:2px; cursor:pointer;
   }
+  .topbar .user-info{
+    display:flex; align-items:center; gap:8px;
+  }
+  .topbar #btnToggleEmail{
+    padding:3px 7px; font-size:12px; line-height:1;
+  }
+  .topbar #btnToggleEmail:hover{color:var(--cyan); border-color:var(--cyan);}
 
   .toolbar{display:flex; gap:10px; margin-bottom:16px;}
   .toolbar button{
@@ -146,7 +168,7 @@
     box-shadow:0 -6px 24px rgba(0,0,0,.5);
   }
   .bottom-navbar .bn-side{
-    display:flex; flex:1;
+    display:flex; flex:1; gap:18px;
   }
   .bottom-navbar .bn-side.left{justify-content:flex-start;}
   .bottom-navbar .bn-side.right{justify-content:flex-end;}
@@ -183,11 +205,13 @@
 </head>
 <body>
 
+<div class="bg-logo"><span>LSV</span></div>
+
 <div class="conn-status" id="connStatus">conectando...</div>
 
 <header>
-  <div class="eyebrow">LS Desenvolvedores</div>
-  <h1>PAINEL DE <span>HOSTS</span></h1>
+  <div class="eyebrow">Project RP Mobile</div>
+  <h1>PAINEL DE <span>ADMINISTRAÇÃO</span></h1>
   <div class="sub">Servidores da comunidade — status e conexão</div>
 </header>
 
@@ -213,7 +237,10 @@
 <!-- PAINEL (só aparece logado) -->
 <div id="panelScreen">
   <div class="topbar">
-    <span id="userLabel"></span>
+    <span class="user-info">
+      <span id="userLabel"></span>
+      <button id="btnToggleEmail" title="Ocultar/mostrar e-mail">👁</button>
+    </span>
     <button id="btnLogout">Sair</button>
   </div>
   <main>
@@ -257,6 +284,10 @@
     <span>SERVS</span>
   </button>
   <div class="bn-side right">
+    <button class="bn-tab" id="bnFiles">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+      <span>Files</span>
+    </button>
     <button class="bn-tab" id="bnLogout">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
       <span>Sair</span>
@@ -326,8 +357,21 @@
     const adminSnap = await getDoc(doc(db, "admins", user.uid));
     isAdmin = adminSnap.exists();
 
-    document.getElementById('userLabel').textContent = user.email + (isAdmin ? ' · admin' : '');
+    currentUserLabel = user.email + (isAdmin ? ' · admin' : '');
+    renderUserLabel();
   }
+
+  let currentUserLabel = '';
+  let emailHidden = false;
+
+  function renderUserLabel(){
+    document.getElementById('userLabel').textContent = emailHidden ? '••••••••••' : currentUserLabel;
+  }
+
+  document.getElementById('btnToggleEmail').onclick = () => {
+    emailHidden = !emailHidden;
+    renderUserLabel();
+  };
 
   document.getElementById('btnShowCadastro').onclick = () => {
     modoCadastro = !modoCadastro;
@@ -362,6 +406,9 @@
     await signOut(auth);
   };
   document.getElementById('bnRefresh').onclick = () => loadHosts();
+  document.getElementById('bnFiles').onclick = () => {
+    alert('Files: em breve');
+  };
 
   // ======================================================
   // 3. HOSTS — listar, criar, editar, excluir (Firestore)
