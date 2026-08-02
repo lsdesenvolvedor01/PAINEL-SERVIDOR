@@ -146,6 +146,19 @@
     border-radius:2px; cursor:pointer;
   }
   .host-actions button:hover{color:var(--cyan); border-color:var(--cyan);}
+
+  .host-status-col{
+    display:flex; flex-direction:column; align-items:flex-end; gap:5px;
+  }
+  .power-btn{
+    width:26px; height:26px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    background:none; border:1px solid var(--panel-border);
+  }
+  .power-btn svg{width:14px; height:14px;}
+  .power-btn.online{color:var(--online); border-color:rgba(57,255,136,.5); box-shadow:0 0 8px rgba(57,255,136,.35);}
+  .power-btn.offline{color:var(--offline); border-color:rgba(255,77,94,.4);}
+  .power-btn:active{transform:scale(.9);}
   .empty{text-align:center; color:var(--muted); padding:60px 20px; font-size:13px;}
 
   .modal-bg{
@@ -491,7 +504,13 @@
       <div class="host-card ${h.status}">
         <div class="host-top">
           <div class="host-name">${escapeHtml(h.nome)}</div>
-          <div class="status-tag ${h.status}"><span class="dot"></span>${h.status}</div>
+          <div class="host-status-col">
+            <div class="status-tag ${h.status}"><span class="dot"></span>${h.status}</div>
+            ${isAdmin ? `
+            <button class="power-btn ${h.status}" data-action="toggle" data-id="${h.id}" data-status="${h.status}" title="${h.status === 'online' ? 'Desligar servidor' : 'Ligar servidor'}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10"/><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/></svg>
+            </button>` : ''}
+          </div>
         </div>
         <div class="host-meta">
           <span><b>${escapeHtml(h.ip)}:${h.porta}</b></span>
@@ -500,7 +519,6 @@
         <div class="host-actions">
           ${isAdmin ? `
           <button data-action="edit" data-id="${h.id}">Editar</button>
-          <button data-action="toggle" data-id="${h.id}" data-status="${h.status}">Marcar ${h.status === 'online' ? 'offline' : 'online'}</button>
           <button data-action="delete" data-id="${h.id}">Excluir</button>
           ` : `<span style="font-size:11px; color:var(--muted);">Apenas administradores podem editar</span>`}
         </div>
