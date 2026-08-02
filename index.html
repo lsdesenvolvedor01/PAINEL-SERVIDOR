@@ -136,43 +136,45 @@
 
   .conn-status{position:fixed; top:10px; right:10px; font-size:10px; color:var(--muted); letter-spacing:.08em;}
 
-  /* ===== NAVBAR FIXA NA PARTE DE BAIXO (opção 3 da referência) ===== */
+  /* ===== NAVBAR FIXA NA PARTE DE BAIXO (botão flutuante central) ===== */
   .bottom-navbar{
     display:none;
-    position:fixed; left:16px; right:16px; bottom:16px; z-index:20;
-    display:flex; align-items:center; justify-content:space-between;
-    background:#0a0d14; border:1px solid var(--panel-border);
-    border-radius:999px; padding:10px 10px 10px 20px;
-    box-shadow:0 10px 30px rgba(0,0,0,.5);
-    max-width:640px; margin:0 auto;
+    position:fixed; left:0; right:0; bottom:0; z-index:20;
+    align-items:center; justify-content:space-between;
+    background:#0a0d14; border-top:1px solid var(--panel-border);
+    padding:10px 20px; height:64px;
+    box-shadow:0 -6px 24px rgba(0,0,0,.5);
   }
-  .bottom-navbar .bn-logo{
-    font-family:'Rajdhani', sans-serif; font-weight:700; letter-spacing:.05em;
-    color:#fff; font-size:16px; white-space:nowrap;
+  .bottom-navbar .bn-side{
+    display:flex; flex:1;
   }
-  .bottom-navbar .bn-links{
-    display:flex; align-items:center; gap:18px; margin:0 14px;
+  .bottom-navbar .bn-side.left{justify-content:flex-start;}
+  .bottom-navbar .bn-side.right{justify-content:flex-end;}
+  .bottom-navbar .bn-tab{
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-family:'Share Tech Mono', monospace; font-size:10px; letter-spacing:.06em;
+    text-transform:uppercase; padding:4px 6px;
   }
-  .bottom-navbar .bn-links a{
-    color:#fff; text-decoration:none; font-size:14px;
-    font-family:'Rajdhani', sans-serif; font-weight:600; letter-spacing:.03em;
-    white-space:nowrap;
+  .bottom-navbar .bn-tab svg{width:20px; height:20px;}
+  .bottom-navbar .bn-tab:hover, .bottom-navbar .bn-tab:active{color:var(--cyan);}
+  .bottom-navbar .bn-fab{
+    position:absolute; left:50%; top:-24px; transform:translateX(-50%);
+    width:58px; height:58px; border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, #6cf6f9, var(--cyan) 55%, #0d5459 100%);
+    border:4px solid var(--bg);
+    box-shadow:0 0 22px rgba(45,226,230,.55), 0 4px 12px rgba(0,0,0,.5);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
-  .bottom-navbar .bn-links a:hover{color:var(--cyan);}
-  .bottom-navbar .bn-contact{
-    border:1px solid var(--cyan); color:var(--cyan); background:none;
-    padding:8px 16px; border-radius:999px; font-size:13px;
-    font-family:'Share Tech Mono', monospace; cursor:pointer; white-space:nowrap;
-  }
-  .bottom-navbar .bn-contact:hover{background:rgba(45,226,230,.1);}
+  .bottom-navbar .bn-fab svg{width:24px; height:24px; stroke:#031117;}
+  .bottom-navbar .bn-fab:active{transform:translateX(-50%) scale(.94);}
 
   /* espaço extra no fim da página pra navbar fixa não cobrir conteúdo */
   main{padding-bottom:110px;}
 
   @media (max-width:520px){
-    .bottom-navbar .bn-links{gap:10px; margin:0 8px;}
-    .bottom-navbar .bn-links a{font-size:13px;}
-    .bottom-navbar{padding:8px 8px 8px 16px;}
+    .bottom-navbar{padding:10px 14px;}
+    .bottom-navbar .bn-tab{font-size:9px;}
   }
 </style>
 </head>
@@ -240,13 +242,21 @@
 
 <!-- NAVBAR FIXA NA PARTE DE BAIXO -->
 <nav class="bottom-navbar" id="bottomNavbar" style="display:none;">
-  <div class="bn-logo">LOGO</div>
-  <div class="bn-links">
-    <a href="#">About us</a>
-    <a href="#">Portfolio</a>
-    <a href="#">Services</a>
+  <div class="bn-side left">
+    <button class="bn-tab" id="bnRefresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+      <span>Atualizar</span>
+    </button>
   </div>
-  <button class="bn-contact">Contact us</button>
+  <button class="bn-fab" id="bnNew" title="Novo host">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <div class="bn-side right">
+    <button class="bn-tab" id="bnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+      <span>Sair</span>
+    </button>
+  </div>
 </nav>
 
 <script type="module">
@@ -343,6 +353,10 @@
   document.getElementById('btnLogout').onclick = async () => {
     await signOut(auth);
   };
+  document.getElementById('bnLogout').onclick = async () => {
+    await signOut(auth);
+  };
+  document.getElementById('bnRefresh').onclick = () => loadHosts();
 
   // ======================================================
   // 3. HOSTS — listar, criar, editar, excluir (Firestore)
@@ -413,6 +427,7 @@
   function closeModal(){ modalBg.classList.remove('open'); }
 
   document.getElementById('btnNew').onclick = () => openModal();
+  document.getElementById('bnNew').onclick = () => openModal();
   document.getElementById('btnCancel').onclick = closeModal;
   document.getElementById('btnRefresh').onclick = loadHosts;
 
