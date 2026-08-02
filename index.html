@@ -135,6 +135,44 @@
   .btn-save{background:var(--cyan); color:#03131a;}
 
   .conn-status{position:fixed; top:10px; right:10px; font-size:10px; color:var(--muted); letter-spacing:.08em;}
+
+  /* ===== NAVBAR FIXA NA PARTE DE BAIXO (opção 3 da referência) ===== */
+  .bottom-navbar{
+    display:none;
+    position:fixed; left:16px; right:16px; bottom:16px; z-index:20;
+    display:flex; align-items:center; justify-content:space-between;
+    background:#0a0d14; border:1px solid var(--panel-border);
+    border-radius:999px; padding:10px 10px 10px 20px;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+    max-width:640px; margin:0 auto;
+  }
+  .bottom-navbar .bn-logo{
+    font-family:'Rajdhani', sans-serif; font-weight:700; letter-spacing:.05em;
+    color:#fff; font-size:16px; white-space:nowrap;
+  }
+  .bottom-navbar .bn-links{
+    display:flex; align-items:center; gap:18px; margin:0 14px;
+  }
+  .bottom-navbar .bn-links a{
+    color:var(--text); text-decoration:none; font-size:13px;
+    font-family:'Share Tech Mono', monospace; white-space:nowrap;
+  }
+  .bottom-navbar .bn-links a:hover{color:var(--cyan);}
+  .bottom-navbar .bn-contact{
+    border:1px solid var(--cyan); color:var(--cyan); background:none;
+    padding:8px 16px; border-radius:999px; font-size:13px;
+    font-family:'Share Tech Mono', monospace; cursor:pointer; white-space:nowrap;
+  }
+  .bottom-navbar .bn-contact:hover{background:rgba(45,226,230,.1);}
+
+  /* espaço extra no fim da página pra navbar fixa não cobrir conteúdo */
+  main{padding-bottom:110px;}
+
+  @media (max-width:520px){
+    .bottom-navbar .bn-links{gap:10px; margin:0 8px;}
+    .bottom-navbar .bn-links a{font-size:12px;}
+    .bottom-navbar{padding:8px 8px 8px 16px;}
+  }
 </style>
 </head>
 <body>
@@ -199,6 +237,17 @@
   </div>
 </div>
 
+<!-- NAVBAR FIXA NA PARTE DE BAIXO -->
+<nav class="bottom-navbar" id="bottomNavbar" style="display:none;">
+  <div class="bn-logo">LOGO</div>
+  <div class="bn-links">
+    <a href="#">About us</a>
+    <a href="#">Portfolio</a>
+    <a href="#">Services</a>
+  </div>
+  <button class="bn-contact">Contact us</button>
+</nav>
+
 <script type="module">
   // ======================================================
   // 1. CONFIGURAÇÃO — cole aqui o config do SEU projeto novo no Firebase
@@ -248,11 +297,13 @@
   function showLogin(){
     loginScreen.style.display = 'block';
     panelScreen.style.display = 'none';
+    document.getElementById('bottomNavbar').style.display = 'none';
   }
 
   async function showPanel(user){
     loginScreen.style.display = 'none';
     panelScreen.style.display = 'block';
+    document.getElementById('bottomNavbar').style.display = 'flex';
 
     // Verifica se esse usuário está na coleção "admins" (documento com ID = uid)
     const adminSnap = await getDoc(doc(db, "admins", user.uid));
