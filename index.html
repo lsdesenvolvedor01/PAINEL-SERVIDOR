@@ -243,6 +243,21 @@
       </div>
       <div id="list"></div>
     </div>
+
+    <div id="filesPanel" style="display:none;">
+      <div class="toolbar">
+        <button class="primary" id="btnShowContas">👤 Contas</button>
+      </div>
+      <div class="empty">Selecione uma opção acima.</div>
+    </div>
+
+    <div id="contasPanel" style="display:none;">
+      <div class="toolbar">
+        <button id="btnBackFiles">← Voltar</button>
+        <button id="btnRefreshContas">↻ Atualizar</button>
+      </div>
+      <div id="accountsList"></div>
+    </div>
   </main>
 </div>
 
@@ -300,7 +315,7 @@
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc,
-    doc, getDoc, query, orderBy, serverTimestamp
+    doc, getDoc, setDoc, query, orderBy, serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -382,7 +397,11 @@
 
     try{
       if(modoCadastro){
-        await createUserWithEmailAndPassword(auth, email, senha);
+        const cred = await createUserWithEmailAndPassword(auth, email, senha);
+        await setDoc(doc(db, "accounts", cred.user.uid), {
+          email: cred.user.email,
+          criado_em: serverTimestamp()
+        });
       } else {
         await signInWithEmailAndPassword(auth, email, senha);
       }
@@ -398,13 +417,53 @@
   document.getElementById('bnLogout').onclick = async () => {
     await signOut(auth);
   };
+  function showOnlyPanel(id){
+    ['hostsPanel','filesPanel','contasPanel'].forEach(p => {
+      document.getElementById(p).style.display = (p === id) ? 'block' : 'none';
+    });
+  }
+
   document.getElementById('bnRefresh').onclick = () => loadHosts();
   document.getElementById('bnFiles').onclick = () => {
-    alert('Files: em breve');
+    showOnlyPanel('filesPanel');
   };
   document.getElementById('bnPaineis').onclick = () => {
     alert('Paineis: em breve');
   };
+  document.getElementById('btnShowContas').onclick = () => {
+    showOnlyPanel('contasPanel');
+    loadAccounts();
+  };
+  document.getElementById('btnBackFiles').onclick = () => {
+    showOnlyPanel('filesPanel');
+  };
+  document.getElementById('btnRefreshContas').onclick = () => loadAccounts();
+
+  async function loadAccounts(){
+    const listEl = document.getElementById('accountsList');
+    listEl.innerHTML = `<div class="empty">Carregando contas...</div>`;
+    try{
+      const q = query(collection(db, "accounts"), orderBy('criado_em', 'desc'));
+      const snap = await getDocs(q);
+      const contas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if(contas.length === 0){
+        listEl.innerHTML = `<div class="empty">Nenhuma conta cadastrada ainda.</div>`;
+        return;
+      }
+      listEl.innerHTML = contas.map(c => `
+        <div class="host-card online">
+          <div class="host-top">
+            <div class="host-name">${escapeHtml(c.email)}</div>
+          </div>
+          <div class="host-meta">
+            <span>UID: <b>${escapeHtml(c.id)}</b></span>
+          </div>
+        </div>
+      `).join('');
+    } catch(err){
+      listEl.innerHTML = `<div class="empty">Erro ao carregar contas.<br>${err.message}</div>`;
+    }
+  }
 
   // ======================================================
   // 3. HOSTS — listar, criar, editar, excluir (Firestore)
@@ -478,8 +537,12 @@
   document.getElementById('bnServs').onclick = () => {
     const hostsPanel = document.getElementById('hostsPanel');
     const isHidden = hostsPanel.style.display === 'none' || hostsPanel.style.display === '';
-    hostsPanel.style.display = isHidden ? 'block' : 'none';
-    if(isHidden) loadHosts();
+    if(isHidden){
+      showOnlyPanel('hostsPanel');
+      loadHosts();
+    } else {
+      hostsPanel.style.display = 'none';
+    }
   };
   document.getElementById('btnCancel').onclick = closeModal;
   document.getElementById('btnRefresh').onclick = loadHosts;
