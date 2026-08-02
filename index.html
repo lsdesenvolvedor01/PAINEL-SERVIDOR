@@ -158,20 +158,15 @@
 
   .conn-status{position:fixed; top:10px; right:10px; font-size:10px; color:var(--muted); letter-spacing:.08em;}
 
-  /* ===== NAVBAR FIXA NA PARTE DE BAIXO (botão flutuante central) ===== */
+  /* ===== NAVBAR FIXA NA PARTE DE BAIXO ===== */
   .bottom-navbar{
     display:none;
     position:fixed; left:0; right:0; bottom:0; z-index:20;
-    align-items:center; justify-content:space-between;
+    align-items:center; justify-content:space-evenly;
     background:#0a0d14; border-top:1px solid var(--panel-border);
-    padding:10px 20px; height:64px;
+    padding:10px 12px; height:64px;
     box-shadow:0 -6px 24px rgba(0,0,0,.5);
   }
-  .bottom-navbar .bn-side{
-    display:flex; flex:1; gap:18px;
-  }
-  .bottom-navbar .bn-side.left{justify-content:space-evenly;}
-  .bottom-navbar .bn-side.right{justify-content:space-evenly;}
   .bottom-navbar .bn-tab{
     background:none; border:none; color:var(--muted); cursor:pointer;
     display:flex; flex-direction:column; align-items:center; gap:3px;
@@ -180,25 +175,12 @@
   }
   .bottom-navbar .bn-tab svg{width:20px; height:20px;}
   .bottom-navbar .bn-tab:hover, .bottom-navbar .bn-tab:active{color:var(--cyan);}
-  .bottom-navbar .bn-fab{
-    position:absolute; left:50%; top:-24px; transform:translateX(-50%);
-    min-width:74px; height:58px; padding:0 14px; border-radius:999px;
-    background:radial-gradient(circle at 32% 28%, #6cf6f9, var(--cyan) 55%, #0d5459 100%);
-    border:4px solid var(--bg);
-    box-shadow:0 0 22px rgba(45,226,230,.55), 0 4px 12px rgba(0,0,0,.5);
-    display:flex; align-items:center; justify-content:center; cursor:pointer;
-  }
-  .bottom-navbar .bn-fab span{
-    font-family:'Rajdhani', sans-serif; font-weight:700; letter-spacing:.06em;
-    font-size:13px; color:#031117; white-space:nowrap;
-  }
-  .bottom-navbar .bn-fab:active{transform:translateX(-50%) scale(.94);}
 
   /* espaço extra no fim da página pra navbar fixa não cobrir conteúdo */
   main{padding-bottom:110px;}
 
   @media (max-width:520px){
-    .bottom-navbar{padding:10px 14px;}
+    .bottom-navbar{padding:10px 6px;}
     .bottom-navbar .bn-tab{font-size:9px;}
   }
 </style>
@@ -274,29 +256,26 @@
 
 <!-- NAVBAR FIXA NA PARTE DE BAIXO -->
 <nav class="bottom-navbar" id="bottomNavbar" style="display:none;">
-  <div class="bn-side left">
-    <button class="bn-tab" id="bnRefresh">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
-      <span>Atualizar</span>
-    </button>
-    <button class="bn-tab" id="bnPaineis">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span>Paineis</span>
-    </button>
-  </div>
-  <button class="bn-fab" id="bnServs" title="Servidores">
-    <span>SERVS</span>
+  <button class="bn-tab" id="bnRefresh">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+    <span>Atualizar</span>
   </button>
-  <div class="bn-side right">
-    <button class="bn-tab" id="bnFiles">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
-      <span>Files</span>
-    </button>
-    <button class="bn-tab" id="bnLogout">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-      <span>Sair</span>
-    </button>
-  </div>
+  <button class="bn-tab" id="bnPaineis">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    <span>Paineis</span>
+  </button>
+  <button class="bn-tab" id="bnServs">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="6" rx="1"/><rect x="2" y="14" width="20" height="6" rx="1"/><circle cx="6" cy="7" r=".6" fill="currentColor"/><circle cx="6" cy="17" r=".6" fill="currentColor"/></svg>
+    <span>Servs</span>
+  </button>
+  <button class="bn-tab" id="bnFiles">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+    <span>Files</span>
+  </button>
+  <button class="bn-tab" id="bnLogout">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+    <span>Sair</span>
+  </button>
 </nav>
 
 <script type="module">
