@@ -160,13 +160,16 @@
   .bottom-navbar .bn-tab:hover, .bottom-navbar .bn-tab:active{color:var(--cyan);}
   .bottom-navbar .bn-fab{
     position:absolute; left:50%; top:-24px; transform:translateX(-50%);
-    width:58px; height:58px; border-radius:50%;
+    min-width:74px; height:58px; padding:0 14px; border-radius:999px;
     background:radial-gradient(circle at 32% 28%, #6cf6f9, var(--cyan) 55%, #0d5459 100%);
     border:4px solid var(--bg);
     box-shadow:0 0 22px rgba(45,226,230,.55), 0 4px 12px rgba(0,0,0,.5);
     display:flex; align-items:center; justify-content:center; cursor:pointer;
   }
-  .bottom-navbar .bn-fab svg{width:24px; height:24px; stroke:#031117;}
+  .bottom-navbar .bn-fab span{
+    font-family:'Rajdhani', sans-serif; font-weight:700; letter-spacing:.06em;
+    font-size:13px; color:#031117; white-space:nowrap;
+  }
   .bottom-navbar .bn-fab:active{transform:translateX(-50%) scale(.94);}
 
   /* espaço extra no fim da página pra navbar fixa não cobrir conteúdo */
@@ -214,11 +217,13 @@
     <button id="btnLogout">Sair</button>
   </div>
   <main>
-    <div class="toolbar">
-      <button id="btnRefresh">↻ Atualizar</button>
-      <button class="primary" id="btnNew">+ Novo host</button>
+    <div id="hostsPanel" style="display:none;">
+      <div class="toolbar">
+        <button id="btnRefresh">↻ Atualizar</button>
+        <button class="primary" id="btnNew">+ Novo host</button>
+      </div>
+      <div id="list"></div>
     </div>
-    <div id="list"></div>
   </main>
 </div>
 
@@ -248,8 +253,8 @@
       <span>Atualizar</span>
     </button>
   </div>
-  <button class="bn-fab" id="bnNew" title="Novo host">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  <button class="bn-fab" id="bnServs" title="Servidores">
+    <span>SERVS</span>
   </button>
   <div class="bn-side right">
     <button class="bn-tab" id="bnLogout">
@@ -309,6 +314,7 @@
     loginScreen.style.display = 'block';
     panelScreen.style.display = 'none';
     document.getElementById('bottomNavbar').style.display = 'none';
+    document.getElementById('hostsPanel').style.display = 'none';
   }
 
   async function showPanel(user){
@@ -321,7 +327,6 @@
     isAdmin = adminSnap.exists();
 
     document.getElementById('userLabel').textContent = user.email + (isAdmin ? ' · admin' : '');
-    loadHosts();
   }
 
   document.getElementById('btnShowCadastro').onclick = () => {
@@ -427,7 +432,12 @@
   function closeModal(){ modalBg.classList.remove('open'); }
 
   document.getElementById('btnNew').onclick = () => openModal();
-  document.getElementById('bnNew').onclick = () => openModal();
+  document.getElementById('bnServs').onclick = () => {
+    const hostsPanel = document.getElementById('hostsPanel');
+    const isHidden = hostsPanel.style.display === 'none' || hostsPanel.style.display === '';
+    hostsPanel.style.display = isHidden ? 'block' : 'none';
+    if(isHidden) loadHosts();
+  };
   document.getElementById('btnCancel').onclick = closeModal;
   document.getElementById('btnRefresh').onclick = loadHosts;
 
